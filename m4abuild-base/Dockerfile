@@ -1,15 +1,17 @@
 FROM ubuntu:focal
 LABEL maintainer="luisan00 <luisan00@hotmail.com>"
 
+ENV DEBIAN_FRONTEND noninteractive
+ENV TZ Etc/UTC
+
 SHELL ["/bin/bash", "-c"]
 
 RUN echo 'Update the package index files to latest available versions' >&2 && \
     apt update
 
 RUN echo 'Install GCC and other stuffs' >&2 && \
-    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install -y \
+    apt install -y \
     git \
-     \
     build-essential \
     pkg-config \
     make \
@@ -33,34 +35,36 @@ RUN echo 'Install GCC and other stuffs' >&2 && \
     libftdi-dev
 
 RUN echo 'Installing ARM toolchain' >&2 && \
-    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install -y \
+    apt install -y \
     gcc-arm-none-eabi
 
-RUN echo 'Installing extensa toolchain and related stuffs' >&2 && \
-    mkdir -p $HOME/esp && \
-    cd $HOME/esp && \
-    git clone https://github.com/gschorcht/xtensa-esp32-elf.git && \
-    export PATH=$PATH:$HOME/esp/xtensa-esp32-elf/bin
-
-RUN echo 'Installation of ESP-IDF (Espressif IoT Development Framework)' >&2 && \
-    cd $HOME/esp && \
-    git clone https://github.com/espressif/esp-idf.git && \
-    cd esp-idf && \
-    git checkout f198339ec09e90666150672884535802304d23ec && \
-    git submodule init && \
-    git submodule update && \
-    export ESP32_SDK_DIR=$HOME/esp/esp-idf
-
 RUN echo 'Installing openocd' >&2 && \
-    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install -y \
+    apt install -y \
     openocd
 
 RUN echo 'Clean up installation files' >&2 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+RUN echo 'Installing extensa toolchain and related stuffs' >&2 && \
+    mkdir -p /opt/esp && \
+    cd /opt/esp && \
+    git clone https://github.com/gschorcht/xtensa-esp32-elf.git && \
+    cd xtensa-esp32-elf && \
+    git checkout -q 414d1f3a577702e927973bd906357ee00d7a6c6c
+
+ENV PATH $PATH:/opt/esp/xtensa-esp32-elf/bin
+
+RUN echo 'Installation of ESP-IDF (Espressif IoT Development Framework)' >&2 && \
+    cd /opt/esp && \
+    git clone https://github.com/espressif/esp-idf.git && \
+    cd esp-idf && \
+    git checkout -q f198339ec09e90666150672884535802304d23ec && \
+    git submodule update --init --recursive
+
+ENV ESP32_SDK_DIR /opt/esp/esp-idf
+
 COPY 60-openocd.rules /etc/udev/rules.d/60-openocd.rules
 
-# Copy our entry point script (signal wrapper)
 COPY run.sh /run.sh
 
 ENTRYPOINT ["/bin/bash", "/run.sh"]
