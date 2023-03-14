@@ -1,6 +1,6 @@
 # Mesh4all build base 
 
-Creates a docker image ready to be used by our Skywalker worker
+Creates a docker image based on Ubuntu `20.04 LTS` with code name `Focal Fossa`, ready to be used by our Skywalker worker.
 
 ## Base system and tools
 
