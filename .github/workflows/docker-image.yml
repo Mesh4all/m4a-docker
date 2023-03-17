@@ -9,6 +9,7 @@ on:
 jobs:
 
   build:
+    name: "22.04"
 
     runs-on: ubuntu-latest
 
