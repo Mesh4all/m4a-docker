@@ -8,7 +8,15 @@ on:
 
 jobs:
 
-  build:
+  build-1:
+    name: "build m4abuild-base:20.04"
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the 20.04 Docker image
+      run: docker build m4abuild-base/20.04/ --tag m4abuild-base:20.04
+
+  build-2:
     name: "build m4abuild-base:22.04"
     runs-on: ubuntu-22.04
     steps:
