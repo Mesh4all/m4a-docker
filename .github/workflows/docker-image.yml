@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the 22.04 Docker image
-      run: docker build ./m4abuild-base/22.04/ --file Dockerfile --tag m4abuild-base:22.04
+      run: docker build m4abuild-base/22.04/ --file Dockerfile --tag m4abuild-base:22.04
